@@ -519,12 +519,44 @@ values:</p>
 ## 17 MinTemp       0.0102 
 ## 18 MaxTemp       0.00867</code></pre>
 <ol style="list-style-type: decimal">
-<li><p>Are there any missing values in our variable of interest
+<li>Are there any missing values in our variable of interest
 <code>RainTomorrow</code>? If so, we filter them out and save the new
-dataset as <code>weather_noNA</code>.</p></li>
-<li><p>Which cities are the ones with more rain days? To do this, let’s
-analyze the <code>RainToday</code> variable.</p></li>
+dataset as <code>weather_noNA</code>.</li>
 </ol>
+<pre class="r"><code>weather_noNA &lt;- weather %&gt;%
+  filter(!is.na(RainTomorrow))
+nrow(weather_noNA)</code></pre>
+<pre><code>## [1] 142193</code></pre>
+<p>!is.na(RainTomorrow) keeps observations where RainTomorrow is not
+missing. We save the cleaned dataset as weather_noNA.</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Which cities are the ones with more rain days? To do this, let’s
+analyze the <code>RainToday</code> variable.</li>
+</ol>
+<pre class="r"><code>weather_noNA %&gt;%
+  group_by(Location) %&gt;%
+  summarise(
+    rainy_days = sum(RainToday == &quot;Yes&quot;, na.rm = TRUE),
+    total_observations = n(),
+    proportion_rainy = mean(RainToday == &quot;Yes&quot;, na.rm = TRUE)
+  ) %&gt;%
+  arrange(desc(proportion_rainy))</code></pre>
+<pre><code>## # A tibble: 49 × 4
+##    Location      rainy_days total_observations proportion_rainy
+##    &lt;fct&gt;              &lt;int&gt;              &lt;int&gt;            &lt;dbl&gt;
+##  1 Portland            1088               2996            0.365
+##  2 Walpole              928               2819            0.335
+##  3 Cairns               941               2988            0.317
+##  4 Dartmoor             921               2943            0.313
+##  5 NorfolkIsland        912               2964            0.310
+##  6 MountGambier         919               3030            0.304
+##  7 Albany               893               3016            0.298
+##  8 Witchcliffe          871               2952            0.298
+##  9 CoffsHarbour         865               2953            0.294
+## 10 MountGinini          781               2907            0.277
+## # ℹ 39 more rows</code></pre>
+<p>Here we can see which cities have the most rainy days ranging from
+the most to the least.</p>
 </div>
 <div id="exercise-2-logistic-regression" class="section level1">
 <h1>Exercise 2: Logistic regression</h1>
