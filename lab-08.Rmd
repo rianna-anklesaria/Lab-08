@@ -19,10 +19,44 @@ glimpse(email)
 ```
 
 1. What proportion of emails are spam? Calculate the proportion of spam separately for emails with and without the word “winner”.
+```{r}
+email %>%
+  summarise(
+    spam_proportion = mean(spam == "1")
+  )
+email %>%
+  group_by(winner) %>%
+  summarise(
+    spam_proportion = mean(spam == "1"),
+    total_emails = n()
+  )
+```
 
-2. Fit a logistic regression of `spam` on `winner` and write down the fitted model. Use `predict(..., type = "prob")` to find the predicted probability of spam for each group. Compare them with your previously calculated proportions.  
+
+2. Fit a logistic regression of `spam` on `winner` and write down the fitted model. Use `predict(..., type = "prob")` to find the predicted probability of spam for each group. Compare them with your previously calculated proportions. 
+```{r}
+spam_mod1 <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(spam ~ winner, data = email)
+
+tidy(spam_mod1)
+predict(spam_mod1, email, type = "prob")
+```
+This gives the predicted probability of an email being spam for each observation.
 
 3. How about fitting a logistic regression of `spam` on `winner` and `num_char`? Calculate the confusion matrix of the fitted logistic model on this new model, and compare with the confusion matrix result of the previous model, relying on `winner` only. Explain the differences on confusion matrix.
+```{r}
+spam_mod2 <- logistic_reg() %>%
+  set_engine("glm") %>%
+  fit(spam ~ winner + num_char, data = email)
+
+tidy(spam_mod2)
+spam_pred1 <- augment(spam_mod1, new_data = email)
+
+spam_pred1 %>%
+  conf_mat(truth = spam, estimate = .pred_class)
+```
+
 
 **Hint:** `augment()` adds the predicted class (`.pred_class`) to the data.
 It labels an email as spam when its predicted probability is above 0.5.
@@ -67,6 +101,7 @@ weather %>%
 ```{r}
 
 ```
+
 
 2. Which cities are the ones with more rain days? To do this, let's analyze the `RainToday` variable. 
 
